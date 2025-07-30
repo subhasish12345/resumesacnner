@@ -12,6 +12,24 @@ type AnalysisResultsProps = {
 export function AnalysisResults({ results }: AnalysisResultsProps) {
   const { similarityScore, matchedSkills, missingSkills } = results;
 
+  const getScoreCategory = (score: number) => {
+    if (score >= 90) {
+      return { title: 'Outstanding', description: "You're a near-perfect match for this role!", color: 'text-primary' };
+    }
+    if (score >= 80) {
+      return { title: 'Excellent', description: 'You are a very strong candidate for this position.', color: 'text-green-500' };
+    }
+    if (score >= 50) {
+      return { title: 'Good Match', description: 'Your skills align well with the job requirements.', color: 'text-yellow-500' };
+    }
+    if (score >= 30) {
+      return { title: 'Needs Improvement', description: 'There are several areas you can improve to be a better fit.', color: 'text-orange-500' };
+    }
+    return { title: 'Poor Match', description: 'This role may not be the best fit based on your current resume.', color: 'text-destructive' };
+  };
+
+  const scoreCategory = getScoreCategory(similarityScore);
+
   return (
     <Card className="w-full shadow-lg border-primary/20">
       <CardHeader className="text-center">
@@ -23,6 +41,9 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
             <Card className="bg-muted w-full md:w-1/2">
                 <CardHeader className="items-center text-center">
                     <CardTitle className="text-xl">Similarity Score</CardTitle>
+                    <CardDescription className={`text-lg font-semibold ${scoreCategory.color}`}>
+                        {scoreCategory.title}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center items-center pb-8">
                      <RadialProgress progress={similarityScore} />
