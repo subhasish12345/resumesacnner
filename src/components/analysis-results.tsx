@@ -18,17 +18,26 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
         <CardDescription>Here's the breakdown of your resume against the job description.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-8 pt-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center bg-muted p-6 rounded-lg">
-          <div className="md:col-span-1 flex justify-center">
-            <RadialProgress progress={similarityScore} />
-          </div>
-          <div className="md:col-span-2 space-y-3">
-            <h3 className="text-xl font-semibold flex items-center gap-2 text-primary">
-              <Lightbulb className="w-6 h-6" />
-              AI-Powered Advice
-            </h3>
-            <p className="text-muted-foreground leading-relaxed">{advice}</p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <Card className="bg-muted h-full">
+                <CardHeader className="items-center text-center">
+                    <CardTitle className="text-xl">Similarity Score</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center items-center pb-8">
+                     <RadialProgress progress={similarityScore} />
+                </CardContent>
+            </Card>
+            <Card className="bg-muted h-full">
+                 <CardHeader>
+                    <CardTitle className="text-xl flex items-center gap-2 text-primary">
+                        <Lightbulb className="w-6 h-6" />
+                        AI-Powered Advice
+                    </CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                    <p className="text-muted-foreground leading-relaxed">{advice}</p>
+                 </CardContent>
+            </Card>
         </div>
 
         <div className="space-y-4">
