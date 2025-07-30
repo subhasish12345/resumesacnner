@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,6 +10,8 @@ import { Rocket } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { FeedbackForm } from '@/components/feedback-form';
+import { DeveloperInfo } from '@/components/developer-info';
 
 export default function MatcherPage() {
   const [results, setResults] = useState<CompareResumeToJobDescriptionOutput | null>(null);
@@ -22,13 +25,13 @@ export default function MatcherPage() {
   }
 
   return (
-    <div className="min-h-screen animated-gradient">
+    <div className="min-h-screen animated-gradient flex flex-col">
        <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-10 p-4 border-b">
          <Button variant="outline" onClick={() => router.push('/dashboard')}>
             &larr; Back to Dashboard
          </Button>
       </header>
-      <main className="container mx-auto px-4 py-8 md:py-16">
+      <main className="container mx-auto px-4 py-8 md:py-16 flex-1">
         <header className="text-center mb-12">
           <div className="inline-block p-4 bg-white/30 backdrop-blur-sm rounded-full mb-4 shadow-lg">
              <Rocket className="w-10 h-10 text-primary" />
@@ -46,9 +49,18 @@ export default function MatcherPage() {
           
           {isLoading && <AnalysisResultsSkeleton />}
 
-          {results && !isLoading && <AnalysisResults results={results} />}
+          {results && !isLoading && (
+            <>
+                <AnalysisResults results={results} />
+                <FeedbackForm />
+            </>
+          )}
         </div>
       </main>
+       <footer className="text-center p-4 text-sm text-white/70 flex items-center justify-center gap-4">
+        <span>© {new Date().getFullYear()} SUBHU. All rights reserved.</span>
+        <DeveloperInfo />
+      </footer>
     </div>
   );
 }

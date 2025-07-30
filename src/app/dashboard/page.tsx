@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { LogOut, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DeveloperInfo } from '@/components/developer-info';
 
 export default function DashboardPage() {
   const { user, signOut } = useAuth();
@@ -47,8 +49,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </main>
-      <footer className="text-center p-4 text-sm text-white/70">
-        Thank you for using Resume Matcher!
+      <footer className="text-center p-4 text-sm text-white/70 flex items-center justify-center gap-4">
+        <span>© {new Date().getFullYear()} SUBHU. All rights reserved.</span>
+        <DeveloperInfo />
       </footer>
     </div>
   );

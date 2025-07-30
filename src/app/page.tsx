@@ -1,8 +1,10 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Rocket } from 'lucide-react';
+import { DeveloperInfo } from '@/components/developer-info';
 
 export default function Home() {
   const router = useRouter();
@@ -34,8 +36,9 @@ export default function Home() {
           </Button>
         </div>
       </main>
-      <footer className="text-center p-4 text-sm text-white/70">
-        Powered by AI. Built for You.
+      <footer className="text-center p-4 text-sm text-white/70 flex items-center justify-center gap-4">
+        <span>© {new Date().getFullYear()} SUBHU. All rights reserved.</span>
+        <DeveloperInfo />
       </footer>
     </div>
   );
