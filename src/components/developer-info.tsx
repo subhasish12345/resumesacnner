@@ -24,13 +24,13 @@ export function DeveloperInfo() {
               A passionate developer creating amazing web experiences.
             </p>
             <div className="flex items-center pt-2 gap-4">
-              <a href="mailto:your-email@example.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="Email">
+              <a href="mailto:subahsishnayak38@gmail.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="Email">
                 <Mail className="h-4 w-4" />
               </a>
-              <a href="https://github.com/your-github" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="GitHub">
+              <a href="https://github.com/subhasish12345" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="GitHub">
                 <Github className="h-4 w-4" />
               </a>
-              <a href="https://linkedin.com/in/your-linkedin" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/in/subhasish-nayak-67a257280" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="LinkedIn">
                 <Linkedin className="h-4 w-4" />
               </a>
                <a href="#" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="Portfolio">
