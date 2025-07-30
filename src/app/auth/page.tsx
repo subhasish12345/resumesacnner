@@ -25,7 +25,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, BarChart, Trophy } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const signUpSchema = z.object({
@@ -106,27 +106,36 @@ export default function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 animated-gradient">
-        <div className="hidden md:flex flex-col justify-center w-1/2 text-white p-12">
-             <h1 className="text-5xl font-extrabold tracking-tight mb-4">Unlock Your Career Potential</h1>
-             <p className="text-lg mb-8">Analyze your resume, track your applications, and land your dream job with our AI-powered tools.</p>
-             <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                    <FileText className="w-8 h-8 text-white/80" />
-                    <p>Get instant feedback on your resume against any job description.</p>
+      <div className="hidden md:flex flex-col justify-center items-center w-1/2 text-white p-12">
+        <h1 className="text-4xl font-extrabold tracking-tight mb-6 text-center">Unlock Your Career Potential</h1>
+        <p className="text-lg mb-8 text-center max-w-md">Our AI-powered tools analyze your resume against job descriptions to give you the edge you need.</p>
+        <div className="w-full max-w-sm">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#FFFFFF" d="M37,-49.9C51.5,-42,69.4,-33.3,77.5,-20.1C85.6,-6.9,83.9,10.9,76,25.3C68.1,39.7,54.1,50.7,39.4,58.8C24.7,66.9,9.4,72,-5.3,73.5C-20,75,-40.1,72.9,-54.2,63.9C-68.3,54.9,-76.4,39,-77.9,23C-79.4,7,-74.3,-9.1,-66.2,-23.1C-58.1,-37.1,-47,-49,-34.5,-56.9C-22,-64.8,-8.1,-68.6,4.6,-65.7C17.3,-62.7,37,-49.9,37,-49.9Z" transform="translate(100 100)" opacity="0.1" />
+            <foreignObject x="15" y="25" width="170" height="150">
+                <div xmlns="http://www.w3.org/1999/xhtml" className="p-4 bg-white/10 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary/80 p-2 rounded-lg">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+                        </div>
+                        <p className="font-bold text-sm text-white">resume_final.pdf</p>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex-1">
+                        <div className="h-2 bg-primary/30 rounded-full w-full">
+                           <div className="h-2 bg-primary rounded-full w-[92%]"></div>
+                        </div>
+                        <p className="text-xs text-white/80 mt-1">92% Match - Outstanding!</p>
+                      </div>
+                      <div className="ml-4 bg-white/20 p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="M20 6 9 17l-5-5"></path></svg>
+                      </div>
+                    </div>
                 </div>
-                 <div className="flex items-center gap-4">
-                    <BarChart className="w-8 h-8 text-white/80" />
-                    <p>See your match score and identify missing keywords.</p>
-                </div>
-                 <div className="flex items-center gap-4">
-                    <Trophy className="w-8 h-8 text-white/80" />
-                    <p>Increase your interview chances by tailoring your application.</p>
-                </div>
-             </div>
-             <Button variant="outline" className="mt-8 w-fit bg-transparent text-white border-white hover:bg-white hover:text-primary" onClick={() => router.push('/')}>
-                Learn More
-             </Button>
+            </foreignObject>
+          </svg>
         </div>
+      </div>
       <Tabs defaultValue="signin" className="w-full max-w-md">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -280,5 +289,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
-    
