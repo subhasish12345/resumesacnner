@@ -1,7 +1,7 @@
 import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, Lightbulb, XCircle, Handshake } from 'lucide-react';
+import { CheckCircle2, XCircle, Handshake } from 'lucide-react';
 import { RadialProgress } from './radial-progress';
 
 type AnalysisResultsProps = {
@@ -9,7 +9,7 @@ type AnalysisResultsProps = {
 };
 
 export function AnalysisResults({ results }: AnalysisResultsProps) {
-  const { similarityScore, matchedSkills, missingSkills, advice } = results;
+  const { similarityScore, matchedSkills, missingSkills } = results;
 
   return (
     <Card className="w-full shadow-lg border-primary/20">
@@ -18,25 +18,14 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
         <CardDescription>Here's the breakdown of your resume against the job description.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-8 pt-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            <Card className="bg-muted h-full">
+        <div className="flex justify-center">
+            <Card className="bg-muted w-full md:w-1/2">
                 <CardHeader className="items-center text-center">
                     <CardTitle className="text-xl">Similarity Score</CardTitle>
                 </CardHeader>
                 <CardContent className="flex justify-center items-center pb-8">
                      <RadialProgress progress={similarityScore} />
                 </CardContent>
-            </Card>
-            <Card className="bg-muted h-full">
-                 <CardHeader>
-                    <CardTitle className="text-xl flex items-center gap-2 text-primary">
-                        <Lightbulb className="w-6 h-6" />
-                        AI-Powered Advice
-                    </CardTitle>
-                 </CardHeader>
-                 <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{advice}</p>
-                 </CardContent>
             </Card>
         </div>
 

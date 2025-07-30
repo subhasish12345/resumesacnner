@@ -11,7 +11,6 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { analyzeJobDescription } from './analyze-job-description';
 import { analyzeResume } from './analyze-resume';
-import { generateAdvice } from './generate-advice';
 
 const CompareResumeToJobDescriptionInputSchema = z.object({
   jobDescription: z.string().describe('The job description.'),
@@ -23,7 +22,6 @@ const CompareResumeToJobDescriptionOutputSchema = z.object({
   similarityScore: z.number().describe('A score from 0 to 100 indicating the similarity between the resume and job description.'),
   matchedSkills: z.array(z.string()).describe('A list of skills from the job description that are present in the resume.'),
   missingSkills: z.array(z.string()).describe('A list of skills from the job description that are missing from the resume.'),
-  advice: z.string().describe('A paragraph of advice on how to improve the resume.'),
 });
 export type CompareResumeToJobDescriptionOutput = z.infer<typeof CompareResumeToJobDescriptionOutputSchema>;
 
@@ -78,22 +76,10 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
         throw new Error('Could not get comparison result');
     }
 
-    let advice = 'Could not generate advice at this time. Please try again.';
-    try {
-        const { output: adviceResult } = await generateAdvice({ missingSkills: comparisonResult.missingSkills });
-        if (adviceResult) {
-            advice = adviceResult.advice;
-        }
-    } catch (error) {
-        console.error('Could not generate advice:', error);
-    }
-    
-
     return {
       similarityScore: comparisonResult.similarityScore,
       matchedSkills: comparisonResult.matchedSkills,
       missingSkills: comparisonResult.missingSkills,
-      advice,
     };
   }
 );
