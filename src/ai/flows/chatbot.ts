@@ -8,7 +8,8 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import type { ChatInput, ChatOutput, ChatInputSchema } from '@/components/chatbot';
+import type { ChatInput, ChatOutput } from '@/components/chatbot';
+import { ChatInputSchema } from '@/components/chatbot';
 
 const chatPrompt = ai.definePrompt({
     name: 'chatbotPrompt',
