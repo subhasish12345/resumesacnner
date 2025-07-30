@@ -16,7 +16,7 @@ import {
   signInWithPopup,
   type User,
 } from 'firebase/auth';
-import { auth, app } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
@@ -67,9 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-      'auth_domain': auth.config.authDomain,
-    });
     const result = await signInWithPopup(auth, provider);
     setUser(result.user);
     router.push('/');

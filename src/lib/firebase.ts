@@ -11,10 +11,6 @@ const firebaseConfig = {
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app, {
-  persistence: undefined,
-  popupRedirectResolver: undefined,
-  authDomain: firebaseConfig.authDomain
-});
+const auth = getAuth(app);
 
 export { app, auth };
