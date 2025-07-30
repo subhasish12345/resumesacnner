@@ -53,9 +53,9 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
         </div>
         <div className="w-full items-center justify-center flex px-6">
           <ul
-            className="w-full flex flex-col items-start gap-3 pb-3"
+            className="w-full flex flex-col items-start gap-3 pb-3 [&>li:last-child]:border-b-0"
           >
-            <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-stone-700 border-dotted text-xs font-semibold text-foreground">
+            <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-muted-foreground border-dotted text-xs font-semibold text-foreground pb-3">
               <CheckCircle2 className="text-primary w-5 h-5 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1.5">
                 <p className="text-sm">Matched Skills</p>
@@ -72,7 +72,7 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
                 )}
               </div>
             </li>
-            <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-stone-700 border-dotted text-xs font-semibold text-foreground">
+            <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-muted-foreground border-dotted text-xs font-semibold text-foreground pb-3">
                 <XCircle className="text-destructive w-5 h-5 shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-1.5">
                     <p className="text-sm">Missing Skills</p>
@@ -89,14 +89,14 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
                     )}
                 </div>
             </li>
-            <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-stone-700 border-dotted text-xs font-semibold text-foreground">
+            <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-muted-foreground border-dotted text-xs font-semibold text-foreground pb-3">
                 <Lightbulb className="text-yellow-500 w-5 h-5 shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-1.5">
                     <p className="text-sm">AI Suggestion</p>
                     <p className="text-muted-foreground font-normal leading-relaxed">{suggestion}</p>
                 </div>
             </li>
-            <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-stone-700 border-dotted text-xs font-semibold text-foreground last:border-b-0">
+            <li className="w-full inline-flex gap-2 items-start justify-start text-xs font-semibold text-foreground pb-3">
                 <Bot className="text-foreground w-5 h-5 shrink-0 mt-0.5" />
                  <div className="flex flex-col gap-1.5">
                     <p className="text-sm">Developer</p>
