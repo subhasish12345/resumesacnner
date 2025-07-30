@@ -24,7 +24,7 @@ export function DeveloperInfo() {
               A passionate developer creating amazing web experiences.
             </p>
             <div className="flex items-center pt-2 gap-4">
-              <a href="mailto:subahsishnayak38@gmail.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="Email">
+              <a href="mailto:subhasish38@gmail.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="Email">
                 <Mail className="h-4 w-4" />
               </a>
               <a href="https://github.com/subhasish12345" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="GitHub">
