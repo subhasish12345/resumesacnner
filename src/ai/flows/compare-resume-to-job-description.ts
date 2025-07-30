@@ -42,7 +42,19 @@ const comparisonAndScoringPrompt = ai.definePrompt({
     matchedSkills: z.array(z.string()).describe('A list of skills from the job description that are present in the resume.'),
     missingSkills: z.array(z.string()).describe('A list of skills from the job description that are missing from the resume.'),
   })},
-  prompt: `Compare the following job description skills with the resume skills and calculate a similarity score from 0 to 100. Identify and list the skills from the job description that are present on the resume, and identify and list the skills from the job description that are missing from the resume.\n\nJob Description Skills: {{jobDescriptionSkills}}\n\nResume Skills: {{resumeSkills}}\n\nRespond in JSON format.`,
+  prompt: `You are an expert at comparing skills from a job description and a resume. Your task is to calculate a similarity score from 0 to 100 based on how many skills from the job description are present in the resume. You must also identify which skills are matched and which are missing.
+
+Job Description Skills:
+{{#each jobDescriptionSkills}}
+- {{this}}
+{{/each}}
+
+Resume Skills:
+{{#each resumeSkills}}
+- {{this}}
+{{/each}}
+
+Please provide the results in JSON format.`,
 });
 
 const compareResumeToJobDescriptionFlow = ai.defineFlow(
@@ -66,17 +78,22 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
         throw new Error('Could not get comparison result');
     }
 
-    const { output: adviceResult } = await generateAdvice({ missingSkills: comparisonResult.missingSkills });
-
-    if (!adviceResult) {
-        throw new Error('Could not generate advice');
+    let advice = 'Could not generate advice at this time. Please try again.';
+    try {
+        const { output: adviceResult } = await generateAdvice({ missingSkills: comparisonResult.missingSkills });
+        if (adviceResult) {
+            advice = adviceResult.advice;
+        }
+    } catch (error) {
+        console.error('Could not generate advice:', error);
     }
+    
 
     return {
       similarityScore: comparisonResult.similarityScore,
       matchedSkills: comparisonResult.matchedSkills,
       missingSkills: comparisonResult.missingSkills,
-      advice: adviceResult.advice,
+      advice,
     };
   }
 );
