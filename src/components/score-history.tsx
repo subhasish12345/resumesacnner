@@ -57,7 +57,7 @@ export function ScoreHistory({ scores }: ScoreHistoryProps) {
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1">
         <AccordionTrigger>
-          <CardHeader className="p-0">
+          <CardHeader className="p-0 text-left">
             <CardTitle>View Score History</CardTitle>
             <CardDescription>
               Check your previously recorded scores.
@@ -100,7 +100,7 @@ export function ScoreHistory({ scores }: ScoreHistoryProps) {
                         >
                           <Badge
                             variant={
-                              score.score > 80 ? 'default' : 'secondary'
+                              score.score >= 80 ? 'default' : 'secondary'
                             }
                           >
                             {score.score}%
