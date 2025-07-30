@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { FeedbackForm } from '@/components/feedback-form';
 import { DeveloperInfo } from '@/components/developer-info';
+import { Chatbot } from '@/components/chatbot';
 
 export default function MatcherPage() {
   const [results, setResults] = useState<CompareResumeToJobDescriptionOutput | null>(null);
@@ -57,6 +58,7 @@ export default function MatcherPage() {
           )}
         </div>
       </main>
+       <Chatbot />
        <footer className="text-center p-4 text-sm text-white/70 flex items-center justify-center gap-4">
         <span>© {new Date().getFullYear()} SUBHU. All rights reserved.</span>
         <DeveloperInfo />

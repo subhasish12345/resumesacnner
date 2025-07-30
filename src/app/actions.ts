@@ -1,6 +1,7 @@
 'use server';
 
 import { compareResumeToJobDescription, type CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
+import { chat, type ChatInput, type ChatOutput } from '@/ai/flows/chatbot';
 
 export async function performMatch(jobDescription: string, resume: string): Promise<CompareResumeToJobDescriptionOutput> {
   if (!jobDescription || jobDescription.length < 100) {
@@ -26,4 +27,21 @@ export async function performMatch(jobDescription: string, resume: string): Prom
     console.error(e);
     throw new Error('An unexpected error occurred during analysis. Please try again later.');
   }
+}
+
+export async function performChat(input: ChatInput): Promise<ChatOutput> {
+    if (!input.message || input.message.length === 0) {
+        throw new Error('Message cannot be empty.');
+    }
+    if (input.message.length > 2000) {
+        throw new Error('Message cannot exceed 2000 characters.');
+    }
+
+    try {
+        const result = await chat(input);
+        return result;
+    } catch (e) {
+        console.error(e);
+        throw new Error('An unexpected error occurred with the chatbot. Please try again later.');
+    }
 }
