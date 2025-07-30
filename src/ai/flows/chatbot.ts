@@ -4,27 +4,23 @@
  * @fileOverview A conversational AI chatbot flow.
  *
  * - chat - A function that handles the chatbot conversation.
- * - ChatInput - The input type for the chat function.
- * - ChatOutput - The return type for the chat function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import type { ChatInput, ChatOutput } from '@/app/actions';
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'model']),
   content: z.string(),
 });
 
-export const ChatInputSchema = z.object({
+const ChatInputSchema = z.object({
   history: z.array(MessageSchema),
   message: z.string(),
 });
-export type ChatInput = z.infer<typeof ChatInputSchema>;
 
-export const ChatOutputSchema = z.string();
-export type ChatOutput = z.infer<typeof ChatOutputSchema>;
-
+const ChatOutputSchema = z.string();
 
 const chatPrompt = ai.definePrompt({
     name: 'chatbotPrompt',
