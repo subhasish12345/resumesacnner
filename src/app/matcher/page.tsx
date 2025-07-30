@@ -24,8 +24,8 @@ export default function MatcherPage() {
   return (
     <div className="min-h-screen bg-muted/40">
        <header className="bg-background p-4 border-b">
-         <Button variant="outline" onClick={() => router.push('/')}>
-            &larr; Back to Home
+         <Button variant="outline" onClick={() => router.push('/dashboard')}>
+            &larr; Back to Dashboard
          </Button>
       </header>
       <main className="container mx-auto px-4 py-8 md:py-16">

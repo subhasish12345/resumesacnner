@@ -31,7 +31,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const publicRoutes = ['/auth'];
+const publicRoutes = ['/auth', '/'];
+const privateRoutes = ['/dashboard', '/matcher'];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -50,26 +51,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
-    
-    if (!user && !isPublicRoute) {
+    const isPublicRoute = publicRoutes.some((route) => pathname === route);
+    const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
+
+    if (!user && isPrivateRoute) {
       router.push('/auth');
-    } else if (user && isPublicRoute) {
-      router.push('/');
+    } else if (user && (pathname === '/auth' || pathname === '/')) {
+      router.push('/dashboard');
     }
   }, [user, loading, router, pathname]);
 
   const signOut = async () => {
     await firebaseSignOut(auth);
     setUser(null);
-    router.push('/auth');
+    router.push('/');
   };
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     setUser(result.user);
-    router.push('/');
+    router.push('/dashboard');
   };
 
   const value = useMemo(
@@ -84,9 +86,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [user, loading]
   );
   
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+  const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
 
-  if (loading || (!user && !isPublicRoute)) {
+  if (loading || (isPrivateRoute && !user)) {
      return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
