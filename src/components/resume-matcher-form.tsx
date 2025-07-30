@@ -12,6 +12,7 @@ import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-res
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
 const formSchema = z.object({
   jobDescription: z.string().min(100, { message: 'Job description must be at least 100 characters.' }).max(15000, { message: 'Job description cannot exceed 15,000 characters.'}),
@@ -19,7 +20,7 @@ const formSchema = z.object({
 });
 
 type ResumeMatcherFormProps = {
-  setResults: Dispatch<SetStateAction<CompareResumeToJobDescriptionOutput | null>>;
+  setResults: (results: CompareResumeToJobDescriptionOutput | null) => void;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -33,12 +34,21 @@ export function ResumeMatcherForm({ setResults, setIsLoading }: ResumeMatcherFor
     },
   });
   const { toast } = useToast();
+  const { user } = useAuth();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: 'Not Authenticated',
+            description: 'You must be signed in to perform a match.',
+        });
+        return;
+    }
     setIsLoading(true);
     setResults(null);
     try {
-      const result = await performMatch(values.jobDescription, values.resume);
+      const result = await performMatch(values.jobDescription, values.resume, user.uid);
       setResults(result);
       form.reset();
     } catch (error) {

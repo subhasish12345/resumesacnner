@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
 import { ResumeMatcherForm } from '@/components/resume-matcher-form';
 import { AnalysisResults } from '@/components/analysis-results';
@@ -13,12 +13,28 @@ import { useRouter } from 'next/navigation';
 import { FeedbackForm } from '@/components/feedback-form';
 import { DeveloperInfo } from '@/components/developer-info';
 import { Chatbot } from '@/components/chatbot';
+import { ScoreHistory } from '@/components/score-history';
+import { getScoreHistory, type ScoreRecord } from '@/app/actions';
 
 export default function MatcherPage() {
   const [results, setResults] = useState<CompareResumeToJobDescriptionOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [scoreHistory, setScoreHistory] = useState<ScoreRecord[]>([]);
   const { user } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      getScoreHistory(user.uid).then(setScoreHistory);
+    }
+  }, [user]);
+
+  const handleNewResult = (newResult: CompareResumeToJobDescriptionOutput) => {
+    setResults(newResult);
+    if(user) {
+        getScoreHistory(user.uid).then(setScoreHistory);
+    }
+  }
 
   if (!user) {
     // Handled by useAuth, but as a fallback
@@ -46,7 +62,8 @@ export default function MatcherPage() {
         </header>
 
         <div className="max-w-7xl mx-auto space-y-12">
-          <ResumeMatcherForm setResults={setResults} setIsLoading={setIsLoading} />
+          <ScoreHistory scores={scoreHistory} />
+          <ResumeMatcherForm setResults={handleNewResult} setIsLoading={setIsLoading} />
           
           {isLoading && <AnalysisResultsSkeleton />}
 
