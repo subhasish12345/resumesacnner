@@ -16,19 +16,19 @@ const chatPrompt = ai.definePrompt({
     input: { schema: ChatInputSchema },
     output: { schema: z.string() },
     prompt: `You are a friendly and helpful career assistant chatbot. Your name is 'Resume Bot'.
-    Your goal is to provide helpful, concise, and encouraging advice to users about their resumes, job applications, and career questions.
-    Keep your answers friendly and to the point.
+Your goal is to provide helpful, concise, and encouraging advice to users about their resumes, job applications, and career questions.
+Keep your answers friendly and to the point.
 
-    Here is the conversation history so far:
-    {{#each history}}
-    {{role}}: {{content}}
-    {{/each}}
+Here is the conversation history so far:
+{{#each history}}
+{{this.role}}: {{this.content}}
+{{/each}}
 
-    Here is the user's latest message:
-    user: {{message}}
+Here is the user's latest message:
+user: {{message}}
 
-    Your response:
-    `,
+Your response:
+`,
 });
 
 
