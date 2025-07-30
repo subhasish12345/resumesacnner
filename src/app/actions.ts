@@ -2,19 +2,7 @@
 
 import { compareResumeToJobDescription, type CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
 import { chat } from '@/ai/flows/chatbot';
-import { z } from 'zod';
-
-// Define chat types here to be shared between client and server
-const MessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-export const ChatInputSchema = z.object({
-  history: z.array(MessageSchema),
-  message: z.string(),
-});
-export type ChatInput = z.infer<typeof ChatInputSchema>;
-export type ChatOutput = string;
+import type { ChatInput, ChatOutput } from '@/components/chatbot';
 
 
 export async function performMatch(jobDescription: string, resume: string): Promise<CompareResumeToJobDescriptionOutput> {

@@ -8,24 +8,12 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import type { ChatInput, ChatOutput } from '@/app/actions';
-
-const MessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-
-const ChatInputSchema = z.object({
-  history: z.array(MessageSchema),
-  message: z.string(),
-});
-
-const ChatOutputSchema = z.string();
+import type { ChatInput, ChatOutput, ChatInputSchema } from '@/components/chatbot';
 
 const chatPrompt = ai.definePrompt({
     name: 'chatbotPrompt',
     input: { schema: ChatInputSchema },
-    output: { schema: ChatOutputSchema },
+    output: { schema: z.string() },
     prompt: `You are a friendly and helpful career assistant chatbot. Your name is 'Resume Bot'.
     Your goal is to provide helpful, concise, and encouraging advice to users about their resumes, job applications, and career questions.
     Keep your answers friendly and to the point.

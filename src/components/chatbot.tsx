@@ -11,11 +11,20 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { performChat } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { z } from 'zod';
 
-type Message = {
-  role: 'user' | 'model';
-  content: string;
-};
+const MessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  content: z.string(),
+});
+export const ChatInputSchema = z.object({
+  history: z.array(MessageSchema),
+  message: z.string(),
+});
+export type ChatInput = z.infer<typeof ChatInputSchema>;
+export type ChatOutput = string;
+
+type Message = z.infer<typeof MessageSchema>;
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
