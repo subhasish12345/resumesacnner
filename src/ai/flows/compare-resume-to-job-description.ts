@@ -9,6 +9,9 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { analyzeJobDescription } from './analyze-job-description';
+import { analyzeResume } from './analyze-resume';
+import { generateAdvice } from './generate-advice';
 
 const CompareResumeToJobDescriptionInputSchema = z.object({
   jobDescription: z.string().describe('The job description.'),
@@ -28,41 +31,18 @@ export async function compareResumeToJobDescription(input: CompareResumeToJobDes
   return compareResumeToJobDescriptionFlow(input);
 }
 
-const jobDescriptionAnalysisPrompt = ai.definePrompt({
-  name: 'jobDescriptionAnalysisPrompt',
-  input: {schema: CompareResumeToJobDescriptionInputSchema},
-  prompt: `Extract a list of all technical skills, qualifications, and responsibilities from the following job description:\n\n{{jobDescription}}`,
-});
-
-const resumeAnalysisPrompt = ai.definePrompt({
-  name: 'resumeAnalysisPrompt',
-  input: {schema: CompareResumeToJobDescriptionInputSchema},
-  prompt: `Extract a list of all technical skills and projects from the following resume:\n\n{{resume}}`,
-});
-
 const comparisonAndScoringPrompt = ai.definePrompt({
   name: 'comparisonAndScoringPrompt',
   input: {schema: z.object({
-    jobDescriptionSkills: z.string().describe('The extracted skills, qualifications, and responsibilities from the job description.'),
-    resumeSkills: z.string().describe('The extracted skills and projects from the resume.'),
+    jobDescriptionSkills: z.array(z.string()).describe('The extracted skills from the job description.'),
+    resumeSkills: z.array(z.string()).describe('The extracted skills from the resume.'),
   })},
   output: {schema: z.object({
     similarityScore: z.number().describe('A score from 0 to 100 indicating the similarity between the resume and job description.'),
     matchedSkills: z.array(z.string()).describe('A list of skills from the job description that are present in the resume.'),
     missingSkills: z.array(z.string()).describe('A list of skills from the job description that are missing from the resume.'),
   })},
-  prompt: `Compare the following job description skills with the resume skills and calculate a similarity score from 0 to 100. Identify and list the skills from the job description that are present on the resume, and identify and list the skills from the job description that are missing from the resume.\n\nJob Description Skills: {{jobDescriptionSkills}}\n\nResume Skills: {{resumeSkills}}\n\nRespond in JSON format.`, // Requesting JSON format for structured output
-});
-
-const suggestionGenerationPrompt = ai.definePrompt({
-  name: 'suggestionGenerationPrompt',
-  input: {schema: z.object({
-    missingSkills: z.array(z.string()).describe('A list of skills missing from the resume.'),
-  })},
-  output: {schema: z.object({
-    advice: z.string().describe('A paragraph of advice on how to improve the resume.'),
-  })},
-  prompt: `Generate a paragraph of advice on how to improve the resume, focusing on the following missing skills:\n\n{{missingSkills}}`,
+  prompt: `Compare the following job description skills with the resume skills and calculate a similarity score from 0 to 100. Identify and list the skills from the job description that are present on the resume, and identify and list the skills from the job description that are missing from the resume.\n\nJob Description Skills: {{jobDescriptionSkills}}\n\nResume Skills: {{resumeSkills}}\n\nRespond in JSON format.`,
 });
 
 const compareResumeToJobDescriptionFlow = ai.defineFlow(
@@ -72,28 +52,31 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
     outputSchema: CompareResumeToJobDescriptionOutputSchema,
   },
   async input => {
-    const jobDescriptionSkillsResponse = await jobDescriptionAnalysisPrompt(input);
-    const resumeSkillsResponse = await resumeAnalysisPrompt(input);
+    const [jobAnalysis, resumeAnalysis] = await Promise.all([
+        analyzeJobDescription({ jobDescription: input.jobDescription }),
+        analyzeResume({ resumeText: input.resume }),
+    ]);
 
-    const comparisonInput = {
-      jobDescriptionSkills: jobDescriptionSkillsResponse.output!,
-      resumeSkills: resumeSkillsResponse.output!,
-    };
-    const comparisonResponse = await comparisonAndScoringPrompt({
-      jobDescriptionSkills: comparisonInput.jobDescriptionSkills as any, // force conversion to string
-      resumeSkills: comparisonInput.resumeSkills as any, // force conversion to string
+    const { output: comparisonResult } = await comparisonAndScoringPrompt({
+        jobDescriptionSkills: jobAnalysis.skills,
+        resumeSkills: resumeAnalysis.skills,
     });
+    
+    if (!comparisonResult) {
+        throw new Error('Could not get comparison result');
+    }
 
-    const suggestionInput = {
-      missingSkills: comparisonResponse.output!.missingSkills,
-    };
-    const suggestionResponse = await suggestionGenerationPrompt(suggestionInput as any); // missing skills is an array
+    const { output: adviceResult } = await generateAdvice({ missingSkills: comparisonResult.missingSkills });
+
+    if (!adviceResult) {
+        throw new Error('Could not generate advice');
+    }
 
     return {
-      similarityScore: comparisonResponse.output!.similarityScore,
-      matchedSkills: comparisonResponse.output!.matchedSkills,
-      missingSkills: comparisonResponse.output!.missingSkills,
-      advice: suggestionResponse.output!.advice,
+      similarityScore: comparisonResult.similarityScore,
+      matchedSkills: comparisonResult.matchedSkills,
+      missingSkills: comparisonResult.missingSkills,
+      advice: adviceResult.advice,
     };
   }
 );
