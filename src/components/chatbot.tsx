@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, Send, X, Loader2, Bot } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { performChat } from '@/app/actions';
-import { useToast } from './ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 type Message = {
