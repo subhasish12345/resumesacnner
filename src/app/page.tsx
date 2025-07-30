@@ -1,39 +1,51 @@
 'use client';
 
-import { useState } from 'react';
-import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
-import { ResumeMatcherForm } from '@/components/resume-matcher-form';
-import { AnalysisResults } from '@/components/analysis-results';
-import { AnalysisResultsSkeleton } from '@/components/analysis-results-skeleton';
-import { Rocket } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
 
 export default function Home() {
-  const [results, setResults] = useState<CompareResumeToJobDescriptionOutput | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/auth');
+  };
+
+  if (!user) {
+    // This should be handled by the useAuth hook's redirect, but as a fallback
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <main className="container mx-auto px-4 py-8 md:py-16">
-        <header className="text-center mb-12">
-          <div className="inline-block p-4 bg-accent rounded-full mb-4">
-             <Rocket className="w-10 h-10 text-primary" />
-          </div>
-          <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-            Resume Matcher
-          </h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Get an AI-powered analysis of how well your resume matches a job description.
+    <div className="min-h-screen bg-muted/40 flex flex-col">
+      <header className="flex items-center justify-between p-4 border-b bg-background">
+        <h1 className="text-xl font-bold text-primary">Resume Matcher</h1>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-muted-foreground hidden sm:inline">Welcome, {user.email}</span>
+          <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign out">
+            <LogOut className="w-5 h-5" />
+          </Button>
+        </div>
+      </header>
+      <main className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-4xl font-extrabold tracking-tight text-foreground mb-4">
+            Welcome to Your Career Assistant
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+            You're all set! Let's get started by analyzing your resume against a job description to see how you stack up.
           </p>
-        </header>
-
-        <div className="max-w-7xl mx-auto space-y-12">
-          <ResumeMatcherForm setResults={setResults} setIsLoading={setIsLoading} />
-          
-          {isLoading && <AnalysisResultsSkeleton />}
-
-          {results && !isLoading && <AnalysisResults results={results} />}
+          <Button size="lg" onClick={() => router.push('/matcher')}>
+            Match Your Resume
+          </Button>
         </div>
       </main>
+      <footer className="text-center p-4 text-sm text-muted-foreground border-t">
+        Thank you for using Resume Matcher!
+      </footer>
     </div>
   );
 }

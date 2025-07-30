@@ -1,7 +1,7 @@
 import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, Lightbulb, XCircle } from 'lucide-react';
+import { CheckCircle2, Lightbulb, XCircle, Handshake } from 'lucide-react';
 import { RadialProgress } from './radial-progress';
 
 type AnalysisResultsProps = {
@@ -65,6 +65,13 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
           ) : (
             <p className="text-muted-foreground">Great news! No critical skills seem to be missing.</p>
           )}
+        </div>
+
+        <div className="mt-8 text-center p-4 border-t border-dashed">
+            <div className="flex items-center justify-center gap-2 text-lg font-semibold text-primary">
+                <Handshake className="w-6 h-6" />
+                <h3>Thank you for using our service. Visit again!</h3>
+            </div>
         </div>
       </CardContent>
     </Card>
