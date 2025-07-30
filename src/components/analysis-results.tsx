@@ -52,9 +52,7 @@ export function AnalysisResults({ results }: AnalysisResultsProps) {
           <p className={`text-sm font-semibold ${scoreCategory.color}`}>{scoreCategory.title}</p>
         </div>
         <div className="w-full items-center justify-center flex px-6">
-          <ul
-            className="w-full flex flex-col items-start gap-3 pb-3 [&>li:last-child]:border-b-0"
-          >
+          <ul className="w-full flex flex-col items-start gap-3 pb-3">
             <li className="w-full inline-flex gap-2 items-start justify-start border-b-[1.5px] border-b-muted-foreground border-dotted text-xs font-semibold text-foreground pb-3">
               <CheckCircle2 className="text-primary w-5 h-5 shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1.5">
