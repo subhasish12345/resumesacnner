@@ -31,18 +31,14 @@ export async function compareResumeToJobDescription(input: CompareResumeToJobDes
   return compareResumeToJobDescriptionFlow(input);
 }
 
-const comparisonAndScoringPrompt = ai.definePrompt({
-  name: 'comparisonAndScoringPrompt',
+const comparisonAndSuggestionPrompt = ai.definePrompt({
+  name: 'comparisonAndSuggestionPrompt',
   input: {schema: z.object({
     jobDescriptionSkills: z.array(z.string()).describe('The extracted skills from the job description.'),
     resumeSkills: z.array(z.string()).describe('The extracted skills from the resume.'),
   })},
-  output: {schema: z.object({
-    similarityScore: z.number().describe('A score from 0 to 100 indicating the similarity between the resume and job description.'),
-    matchedSkills: z.array(z.string()).describe('A list of skills from the job description that are present in the resume.'),
-    missingSkills: z.array(z.string()).describe('A list of skills from the job description that are missing from the resume.'),
-  })},
-  prompt: `You are an expert at comparing skills from a job description and a resume. Your task is to calculate a similarity score from 0 to 100 based on how many skills from the job description are present in the resume. You must also identify which skills are matched and which are missing.
+  output: {schema: CompareResumeToJobDescriptionOutputSchema},
+  prompt: `You are an expert at comparing skills from a job description and a resume. Your task is to calculate a similarity score from 0 to 100 based on how many skills from the job description are present in the resume. You must also identify which skills are matched and which are missing. Finally, provide a concise, one-paragraph piece of advice to the user on how to improve their resume based on the missing skills.
 
 Job Description Skills:
 {{#each jobDescriptionSkills}}
@@ -54,7 +50,9 @@ Resume Skills:
 - {{this}}
 {{/each}}
 
-Please provide the results in JSON format.`,
+Please provide the results in the specified JSON format, including the similarity score, matched skills, missing skills, and a helpful suggestion.
+If there are no missing skills, the suggestion should be a general tip for resume improvement.
+`,
 });
 
 const compareResumeToJobDescriptionFlow = ai.defineFlow(
@@ -69,24 +67,19 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
         analyzeResume({ resumeText: input.resume }),
     ]);
 
-    const { output: comparisonResult } = await comparisonAndScoringPrompt({
+    if (!jobAnalysis || !resumeAnalysis) {
+        throw new Error('Failed to analyze job description or resume.');
+    }
+
+    const { output: result } = await comparisonAndSuggestionPrompt({
         jobDescriptionSkills: jobAnalysis.skills,
         resumeSkills: resumeAnalysis.skills,
     });
     
-    if (!comparisonResult) {
-        throw new Error('Could not get comparison result');
+    if (!result) {
+        throw new Error('Could not get comparison result and suggestion.');
     }
-
-    const { suggestion } = await generateSuggestion({
-        missingSkills: comparisonResult.missingSkills,
-    });
-
-    return {
-      similarityScore: comparisonResult.similarityScore,
-      matchedSkills: comparisonResult.matchedSkills,
-      missingSkills: comparisonResult.missingSkills,
-      suggestion,
-    };
+    
+    return result;
   }
 );

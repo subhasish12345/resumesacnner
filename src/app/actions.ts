@@ -45,12 +45,13 @@ export async function performMatch(
   }
 
   try {
-    const result = await compareResumeToJobDescription({
-      jobDescription,
-      resume,
-    });
-
-    const { jobTitle } = await extractJobTitle({ jobDescription });
+    const [result, { jobTitle }] = await Promise.all([
+        compareResumeToJobDescription({
+            jobDescription,
+            resume,
+        }),
+        extractJobTitle({ jobDescription }),
+    ]);
 
     await addDoc(collection(db, 'scores'), {
       userId: userId,
@@ -62,6 +63,9 @@ export async function performMatch(
     return result;
   } catch (e) {
     console.error(e);
+    if (e instanceof Error) {
+        throw new Error(`An unexpected error occurred: ${e.message}`);
+    }
     throw new Error(
       'An unexpected error occurred during analysis. Please try again later.'
     );
