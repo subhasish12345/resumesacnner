@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { SampleData } from './sample-data';
 
 const formSchema = z.object({
   jobDescription: z.string().min(100, { message: 'Job description must be at least 100 characters.' }).max(15000, { message: 'Job description cannot exceed 15,000 characters.'}),
@@ -66,11 +67,12 @@ export function ResumeMatcherForm({ setResults, setIsLoading }: ResumeMatcherFor
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle>Start Your Analysis</CardTitle>
-        <CardDescription>Paste the full job description and your resume text into the fields below.</CardDescription>
+        <CardDescription>Paste the full job description and your resume text into the fields below, or use our samples to get started.</CardDescription>
       </CardHeader>
       <CardContent>
+        <SampleData setValue={form.setValue} />
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <FormField
                 control={form.control}
