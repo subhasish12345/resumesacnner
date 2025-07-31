@@ -14,7 +14,7 @@ import { FeedbackForm } from '@/components/feedback-form';
 import { DeveloperInfo } from '@/components/developer-info';
 import { Chatbot } from '@/components/chatbot';
 import { ScoreHistory } from '@/components/score-history';
-import { getScoreHistory, type ScoreRecord, performMatch } from '@/app/actions';
+import { getScoreHistory, type ScoreRecord } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 export default function MatcherPage() {
@@ -31,33 +31,17 @@ export default function MatcherPage() {
     }
   }, [user]);
 
-  const handleAnalysis = async (jobDescription: string, resume: string) => {
-      if (!user) {
-        toast({
-            variant: 'destructive',
-            title: 'Not Authenticated',
-            description: 'You must be signed in to perform a match.',
-        });
-        return;
-    }
-    setIsLoading(true);
-    setResults(null);
-    try {
-      const result = await performMatch(jobDescription, resume, user.uid);
-      setResults(result);
+  const handleNewResult = (result: CompareResumeToJobDescriptionOutput | null) => {
+    setResults(result);
+    if (result && user) {
       // Refresh score history after a new analysis
       getScoreHistory(user.uid).then(setScoreHistory);
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Analysis Failed',
-        description: error instanceof Error ? error.message : 'An unknown error occurred.',
-      });
-    } finally {
-      setIsLoading(false);
     }
+  };
+  
+  const handleLoadingStateChange = (loadingState: boolean) => {
+    setIsLoading(loadingState);
   }
-
 
   if (loading) {
     return (
@@ -93,7 +77,11 @@ export default function MatcherPage() {
         </header>
 
         <div className="max-w-7xl mx-auto space-y-12">
-          <ResumeMatcherForm onAnalysis={handleAnalysis} isSubmitting={isLoading} />
+          <ResumeMatcherForm 
+            onNewResult={handleNewResult}
+            onLoadingStateChange={handleLoadingStateChange}
+            isSubmitting={isLoading} 
+          />
           
           {isLoading && <AnalysisResultsSkeleton />}
 
