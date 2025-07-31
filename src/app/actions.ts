@@ -1,7 +1,7 @@
 'use server';
 
 import {
-  compareResumeToJobDescription,
+  compareResumeAgainstJD,
   type CompareResumeToJobDescriptionOutput,
 } from '@/ai/flows/compare-resume-to-job-description';
 import { chat } from '@/ai/flows/chatbot';
@@ -45,7 +45,7 @@ export async function performMatch(
   }
 
   try {
-    const result = await compareResumeToJobDescription({
+    const result = await compareResumeAgainstJD({
       jobDescription,
       resume,
     });
