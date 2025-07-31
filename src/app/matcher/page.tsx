@@ -45,6 +45,7 @@ export default function MatcherPage() {
   }
 
   if (!user) {
+    // This is handled by the AuthProvider, but as a fallback
     return null;
   }
 
@@ -69,8 +70,7 @@ export default function MatcherPage() {
         </header>
 
         <div className="max-w-7xl mx-auto space-y-12">
-          <ScoreHistory scores={scoreHistory} />
-          <ResumeMatcherForm setResults={handleNewResult} setIsLoading={setIsLoading} />
+          <ResumeMatcherForm onResults={handleNewResult} setIsLoading={setIsLoading} />
           
           {isLoading && <AnalysisResultsSkeleton />}
 
@@ -80,6 +80,8 @@ export default function MatcherPage() {
                 <FeedbackForm />
             </>
           )}
+
+          <ScoreHistory scores={scoreHistory} />
         </div>
       </main>
        <Chatbot />
