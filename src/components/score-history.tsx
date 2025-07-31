@@ -30,12 +30,12 @@ type ScoreHistoryProps = {
   scores: ScoreRecord[];
 };
 
-const getScoreColor = (score: number) => {
-  if (score >= 80) return 'text-primary';
-  if (score >= 50) return 'text-green-500';
-  if (score >= 30) return 'text-yellow-500';
-  return 'text-destructive';
+const getBadgeVariant = (score: number): 'default' | 'secondary' | 'destructive' => {
+  if (score >= 80) return 'default';
+  if (score >= 50) return 'secondary';
+  return 'destructive';
 };
+
 
 export function ScoreHistory({ scores }: ScoreHistoryProps) {
   if (scores.length === 0) {
@@ -93,16 +93,8 @@ export function ScoreHistory({ scores }: ScoreHistoryProps) {
                         <TableCell className="font-medium">
                           {score.jobTitle}
                         </TableCell>
-                        <TableCell
-                          className={`text-center font-bold text-lg ${getScoreColor(
-                            score.score
-                          )}`}
-                        >
-                          <Badge
-                            variant={
-                              score.score >= 80 ? 'default' : 'secondary'
-                            }
-                          >
+                        <TableCell className="text-center">
+                           <Badge variant={getBadgeVariant(score.score)} className="text-lg font-bold">
                             {score.score}%
                           </Badge>
                         </TableCell>
