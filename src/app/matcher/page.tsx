@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
 import { ResumeMatcherForm } from '@/components/resume-matcher-form';
 import { AnalysisResults } from '@/components/analysis-results';
@@ -14,7 +14,7 @@ import { FeedbackForm } from '@/components/feedback-form';
 import { DeveloperInfo } from '@/components/developer-info';
 import { Chatbot } from '@/components/chatbot';
 import { ScoreHistory } from '@/components/score-history';
-import { getScoreHistory, type ScoreRecord } from '@/app/actions';
+import { getScoreHistory, performMatch, type ScoreRecord } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 export default function MatcherPage() {
@@ -25,23 +25,52 @@ export default function MatcherPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
+  const fetchScoreHistory = useCallback(async () => {
     if (user) {
-      getScoreHistory(user.uid).then(setScoreHistory);
+      getScoreHistory(user.uid)
+        .then(setScoreHistory)
+        .catch(() => {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not fetch score history.',
+          });
+        });
     }
-  }, [user]);
+  }, [user, toast]);
 
-  const handleNewResult = (result: CompareResumeToJobDescriptionOutput | null) => {
-    setResults(result);
-    if (result && user) {
-      // Refresh score history after a new analysis
-      getScoreHistory(user.uid).then(setScoreHistory);
+  useEffect(() => {
+    fetchScoreHistory();
+  }, [fetchScoreHistory]);
+
+  const handleAnalysis = async (jobDescription: string, resume: string) => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Not Authenticated',
+        description: 'You must be signed in to perform a match.',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setResults(null);
+
+    try {
+      const result = await performMatch(jobDescription, resume, user.uid);
+      setResults(result);
+      fetchScoreHistory(); // Refresh history after new analysis
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Analysis Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred.',
+      });
+      setResults(null);
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  const handleLoadingStateChange = (loadingState: boolean) => {
-    setIsLoading(loadingState);
-  }
 
   if (loading) {
     return (
@@ -78,8 +107,7 @@ export default function MatcherPage() {
 
         <div className="max-w-7xl mx-auto space-y-12">
           <ResumeMatcherForm 
-            onNewResult={handleNewResult}
-            onLoadingStateChange={handleLoadingStateChange}
+            onAnalysis={handleAnalysis}
             isSubmitting={isLoading} 
           />
           

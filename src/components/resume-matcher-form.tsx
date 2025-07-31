@@ -10,10 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { SampleData } from './sample-data';
-import { performMatch } from '@/app/actions';
-import { useAuth } from '@/hooks/use-auth';
-import { useToast } from '@/hooks/use-toast';
-import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
 
 const formSchema = z.object({
   jobDescription: z.string().min(100, { message: 'Job description must be at least 100 characters.' }).max(15000, { message: 'Job description cannot exceed 15,000 characters.'}),
@@ -21,12 +17,11 @@ const formSchema = z.object({
 });
 
 type ResumeMatcherFormProps = {
-  onNewResult: (result: CompareResumeToJobDescriptionOutput | null) => void;
-  onLoadingStateChange: (isLoading: boolean) => void;
+  onAnalysis: (jobDescription: string, resume: string) => Promise<void>;
   isSubmitting: boolean;
 };
 
-export function ResumeMatcherForm({ onNewResult, onLoadingStateChange, isSubmitting }: ResumeMatcherFormProps) {
+export function ResumeMatcherForm({ onAnalysis, isSubmitting }: ResumeMatcherFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
@@ -36,35 +31,8 @@ export function ResumeMatcherForm({ onNewResult, onLoadingStateChange, isSubmitt
     },
   });
 
-  const { user } = useAuth();
-  const { toast } = useToast();
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
-      toast({
-        variant: 'destructive',
-        title: 'Not Authenticated',
-        description: 'You must be signed in to perform a match.',
-      });
-      return;
-    }
-    
-    onLoadingStateChange(true);
-    onNewResult(null);
-
-    try {
-      const result = await performMatch(values.jobDescription, values.resume, user.uid);
-      onNewResult(result);
-    } catch (error) {
-       toast({
-        variant: 'destructive',
-        title: 'Analysis Failed',
-        description: error instanceof Error ? error.message : 'An unknown error occurred.',
-      });
-      onNewResult(null);
-    } finally {
-      onLoadingStateChange(false);
-    }
+    await onAnalysis(values.jobDescription, values.resume);
   }
 
   return (

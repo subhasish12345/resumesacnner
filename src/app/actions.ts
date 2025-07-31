@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -16,7 +17,6 @@ import {
   orderBy,
   Timestamp,
 } from 'firebase/firestore';
-import { extractJobTitle } from '@/ai/flows/extract-job-title';
 
 export type ScoreRecord = {
   id?: string;
@@ -50,7 +50,7 @@ export async function performMatch(
       resume,
     });
 
-    if (!result || result.similarityScore === undefined || !result.jobTitle) {
+    if (result?.similarityScore === undefined || !result.jobTitle) {
       throw new Error('The AI model failed to return a valid analysis.');
     }
 
