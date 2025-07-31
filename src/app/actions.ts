@@ -45,30 +45,27 @@ export async function performMatch(
   }
 
   try {
-    const [result, { jobTitle }] = await Promise.all([
-        compareResumeToJobDescription({
-            jobDescription,
-            resume,
-        }),
-        extractJobTitle({ jobDescription }),
-    ]);
+    const result = await compareResumeToJobDescription({
+      jobDescription,
+      resume,
+    });
+
+    if (!result || result.similarityScore === undefined || !result.jobTitle) {
+      throw new Error('The AI model failed to return a valid analysis.');
+    }
 
     await addDoc(collection(db, 'scores'), {
       userId: userId,
       score: result.similarityScore,
-      jobTitle: jobTitle,
+      jobTitle: result.jobTitle,
       createdAt: Timestamp.now(),
     });
 
     return result;
   } catch (e) {
     console.error(e);
-    if (e instanceof Error) {
-        throw new Error(`An unexpected error occurred: ${e.message}`);
-    }
-    throw new Error(
-      'An unexpected error occurred during analysis. Please try again later.'
-    );
+    const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+    throw new Error(`Analysis failed: ${errorMessage}`);
   }
 }
 

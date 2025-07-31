@@ -9,8 +9,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { analyzeJobDescription } from './analyze-job-description';
-import { analyzeResume } from './analyze-resume';
 
 const CompareResumeToJobDescriptionInputSchema = z.object({
   jobDescription: z.string().describe('The job description.'),
@@ -19,6 +17,7 @@ const CompareResumeToJobDescriptionInputSchema = z.object({
 export type CompareResumeToJobDescriptionInput = z.infer<typeof CompareResumeToJobDescriptionInputSchema>;
 
 const CompareResumeToJobDescriptionOutputSchema = z.object({
+  jobTitle: z.string().describe("The job title extracted from the job description."),
   similarityScore: z.number().describe('A score from 0 to 100 indicating the similarity between the resume and job description.'),
   matchedSkills: z.array(z.string()).describe('A list of skills from the job description that are present in the resume.'),
   missingSkills: z.array(z.string()).describe('A list of skills from the job description that are missing from the resume.'),
@@ -32,28 +31,29 @@ export async function compareResumeToJobDescription(input: CompareResumeToJobDes
 
 const comparisonAndSuggestionPrompt = ai.definePrompt({
   name: 'comparisonAndSuggestionPrompt',
-  input: {schema: z.object({
-    jobDescriptionSkills: z.array(z.string()).describe('The extracted skills from the job description.'),
-    resumeSkills: z.array(z.string()).describe('The extracted skills from the resume.'),
-  })},
+  input: {schema: CompareResumeToJobDescriptionInputSchema},
   output: {schema: CompareResumeToJobDescriptionOutputSchema},
-  prompt: `You are an expert at comparing skills from a job description and a resume. Your task is to perform the following actions:
-1.  Calculate a similarity score from 0 to 100. The score is based on the percentage of skills from the job description that are also found in the resume. For example, if 8 out of 10 job skills are in the resume, the score should be 80.
-2.  Identify which skills from the job description are present in the resume (matchedSkills).
-3.  Identify which skills from the job description are NOT in the resume (missingSkills).
-4.  Provide a concise, one-paragraph piece of advice to the user on how to improve their resume based on the missing skills. If there are no missing skills, the suggestion should be a general tip for resume improvement.
+  prompt: `You are an expert HR analyst. Your task is to analyze the provided job description and resume, then return a detailed analysis in JSON format.
 
-Job Description Skills:
-{{#each jobDescriptionSkills}}
-- {{this}}
-{{/each}}
+Perform the following steps:
+1.  **Extract Job Title**: Identify the job title from the job description. If none is found, return "Unknown".
+2.  **Extract Skills**: Identify the key skills and qualifications required by the job description.
+3.  **Analyze Resume**: Identify the skills present in the resume.
+4.  **Compare and Score**: Compare the skills from the job description against the resume. Calculate a similarity score from 0 to 100, where the score represents the percentage of required skills found in the resume. For example, if 8 out of 10 job skills are in the resume, the score is 80.
+5.  **Identify Skill Gaps**: Create a list of skills from the job description that are missing from the resume.
+6.  **Generate Suggestion**: Provide a concise, one-paragraph piece of advice to the user on how to improve their resume based on the missing skills. If there are no missing skills, the suggestion should be a general tip for resume improvement.
 
-Resume Skills:
-{{#each resumeSkills}}
-- {{this}}
-{{/each}}
+Here is the job description:
+--- JOB DESCRIPTION START ---
+{{{jobDescription}}}
+--- JOB DESCRIPTION END ---
 
-Please provide the results in the specified JSON format. Ensure all fields (similarityScore, matchedSkills, missingSkills, suggestion) are populated correctly based on your analysis.
+Here is the resume:
+--- RESUME START ---
+{{{resume}}}
+--- RESUME END ---
+
+Please provide the results in the specified JSON format. Ensure all fields (jobTitle, similarityScore, matchedSkills, missingSkills, suggestion) are populated correctly based on your analysis.
 `,
 });
 
@@ -63,25 +63,11 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
     inputSchema: CompareResumeToJobDescriptionInputSchema,
     outputSchema: CompareResumeToJobDescriptionOutputSchema,
   },
-  async input => {
-    const [jobAnalysis, resumeAnalysis] = await Promise.all([
-        analyzeJobDescription({ jobDescription: input.jobDescription }),
-        analyzeResume({ resumeText: input.resume }),
-    ]);
-
-    if (!jobAnalysis || !jobAnalysis.skills || !resumeAnalysis || !resumeAnalysis.skills) {
-        throw new Error('Failed to analyze job description or resume. One or more analysis steps returned no data.');
+  async (input) => {
+    const { output } = await comparisonAndSuggestionPrompt(input);
+    if (!output) {
+      throw new Error('The AI model failed to return a valid analysis.');
     }
-
-    const { output: result } = await comparisonAndSuggestionPrompt({
-        jobDescriptionSkills: jobAnalysis.skills,
-        resumeSkills: resumeAnalysis.skills,
-    });
-    
-    if (!result || result.similarityScore === undefined) {
-        throw new Error('The AI model failed to return a valid comparison. Please try again.');
-    }
-    
-    return result;
+    return output;
   }
 );
