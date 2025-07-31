@@ -49,9 +49,11 @@ export async function performMatch(
       jobDescription,
       resume,
     });
+    
+    console.log('AI Analysis Result:', JSON.stringify(result, null, 2));
 
-    if (result?.similarityScore === undefined || !result.jobTitle) {
-      throw new Error('The AI model failed to return a valid analysis.');
+    if (!result || typeof result.similarityScore !== 'number' || !result.jobTitle) {
+      throw new Error('The AI model failed to return a valid analysis. Please try again.');
     }
 
     await addDoc(collection(db, 'scores'), {
@@ -63,7 +65,7 @@ export async function performMatch(
 
     return result;
   } catch (e) {
-    console.error(e);
+    console.error('An error occurred during performMatch:', e);
     const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
     throw new Error(`Analysis failed: ${errorMessage}`);
   }

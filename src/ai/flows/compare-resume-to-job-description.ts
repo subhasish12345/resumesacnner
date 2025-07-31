@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -28,32 +29,29 @@ const comparisonAndSuggestionPrompt = ai.definePrompt({
   name: 'comparisonAndSuggestionPrompt',
   input: { schema: CompareResumeToJobDescriptionInputSchema },
   output: { schema: CompareResumeToJobDescriptionOutputSchema },
-  prompt: `You are an expert HR analyst. Your task is to analyze the provided job description and resume, then return a detailed analysis in JSON format.
+  prompt: `You are an expert HR analyst. Your task is to analyze the provided job description and resume.
+  
+Follow these steps carefully:
+1.  Read the job description to understand the required skills and qualifications.
+2.  Read the resume to identify the candidate's skills and experience.
+3.  Compare the resume against the job description.
+4.  Calculate a similarity score from 0 to 100.
+5.  Identify which required skills are present in the resume (matchedSkills).
+6.  Identify which required skills are missing from the resume (missingSkills).
+7.  Generate a helpful, one-paragraph suggestion for how the candidate could improve their resume for this specific job.
+8.  Extract the specific job title from the job description.
 
-Steps:
-1. Extract Job Title
-2. Extract Skills from job description
-3. Extract Skills from resume
-4. Match and score
-5. Identify missing skills
-6. Provide resume improvement suggestion
-
---- JOB DESCRIPTION START ---
+Job Description:
+\`\`\`
 {{{jobDescription}}}
---- JOB DESCRIPTION END ---
+\`\`\`
 
---- RESUME START ---
+Resume:
+\`\`\`
 {{{resume}}}
---- RESUME END ---
+\`\`\`
 
-Return:
-{
-  "jobTitle": "...",
-  "similarityScore": ...,
-  "matchedSkills": [...],
-  "missingSkills": [...],
-  "suggestion": "..."
-}
+IMPORTANT: Your final output must be ONLY the JSON object that adheres to the output schema. Do not include any other text, markdown formatting, or explanations.
 `,
 });
 
@@ -68,11 +66,11 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
     if (!output) {
       throw new Error('The AI model failed to return a valid analysis.');
     }
+    console.log('AI output from flow:', JSON.stringify(output, null, 2));
     return output;
   }
 );
 
-// ✅ Correctly exported function name (no self-reference issues)
 export async function compareResumeAgainstJD(
   input: CompareResumeToJobDescriptionInput
 ): Promise<CompareResumeToJobDescriptionOutput> {
