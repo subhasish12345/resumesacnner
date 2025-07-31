@@ -44,6 +44,7 @@ const privateRoutes = ['/dashboard', '/matcher'];
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [clientSideLoading, setClientSideLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -54,6 +55,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     return () => unsubscribe();
   }, []);
+  
+  useEffect(() => {
+      setClientSideLoading(loading);
+  }, [loading]);
 
   useEffect(() => {
     if (loading) return;
@@ -87,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return result.user;
     } catch (error) {
       console.error('Google Sign In Error', error);
-      return null;
+      throw error;
     }
   };
   
@@ -119,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
 
-  if (loading || (isPrivateRoute && !user)) {
+  if (clientSideLoading || (isPrivateRoute && !user)) {
      return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
