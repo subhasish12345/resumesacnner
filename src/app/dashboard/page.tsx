@@ -4,18 +4,26 @@
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { LogOut, FileText } from 'lucide-react';
+import { LogOut, FileText, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DeveloperInfo } from '@/components/developer-info';
 import { Chatbot } from '@/components/chatbot';
 
 export default function DashboardPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const router = useRouter();
 
   const handleSignOut = async () => {
     await signOut();
   };
+
+  if (loading) {
+    return (
+     <div className="flex h-screen items-center justify-center bg-background">
+       <Loader2 className="h-8 w-8 animate-spin text-primary" />
+     </div>
+   );
+  }
 
   if (!user) {
     return null;

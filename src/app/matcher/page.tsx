@@ -6,7 +6,7 @@ import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-res
 import { ResumeMatcherForm } from '@/components/resume-matcher-form';
 import { AnalysisResults } from '@/components/analysis-results';
 import { AnalysisResultsSkeleton } from '@/components/analysis-results-skeleton';
-import { Rocket } from 'lucide-react';
+import { Rocket, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -20,7 +20,7 @@ export default function MatcherPage() {
   const [results, setResults] = useState<CompareResumeToJobDescriptionOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [scoreHistory, setScoreHistory] = useState<ScoreRecord[]>([]);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -36,8 +36,15 @@ export default function MatcherPage() {
     }
   }
 
+  if (loading) {
+    return (
+     <div className="flex h-screen items-center justify-center bg-background">
+       <Loader2 className="h-8 w-8 animate-spin text-primary" />
+     </div>
+   );
+  }
+
   if (!user) {
-    // Handled by useAuth, but as a fallback
     return null;
   }
 
