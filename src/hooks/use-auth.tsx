@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, {
@@ -26,7 +27,7 @@ interface AuthContextType {
   signUp: typeof createUserWithEmailAndPassword;
   signIn: typeof signInWithEmailAndPassword;
   signOut: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,9 +70,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    setUser(result.user);
-    router.push('/dashboard');
+    try {
+        const result = await signInWithPopup(auth, provider);
+        setUser(result.user);
+        return result.user;
+    } catch (error) {
+        console.error("Google Sign In Error", error);
+        return null;
+    }
   };
 
   const value = useMemo(
@@ -88,9 +94,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
 
-  if (loading || (isPrivateRoute && !user)) {
+  if (loading || (isPrivateRoute && !user && isPrivateRoute)) {
      return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
