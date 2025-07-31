@@ -11,7 +11,6 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { analyzeJobDescription } from './analyze-job-description';
 import { analyzeResume } from './analyze-resume';
-import { generateSuggestion } from './generate-suggestion';
 
 const CompareResumeToJobDescriptionInputSchema = z.object({
   jobDescription: z.string().describe('The job description.'),
@@ -38,7 +37,11 @@ const comparisonAndSuggestionPrompt = ai.definePrompt({
     resumeSkills: z.array(z.string()).describe('The extracted skills from the resume.'),
   })},
   output: {schema: CompareResumeToJobDescriptionOutputSchema},
-  prompt: `You are an expert at comparing skills from a job description and a resume. Your task is to calculate a similarity score from 0 to 100 based on how many skills from the job description are present in the resume. You must also identify which skills are matched and which are missing. Finally, provide a concise, one-paragraph piece of advice to the user on how to improve their resume based on the missing skills.
+  prompt: `You are an expert at comparing skills from a job description and a resume. Your task is to perform the following actions:
+1.  Calculate a similarity score from 0 to 100. The score is based on the percentage of skills from the job description that are also found in the resume. For example, if 8 out of 10 job skills are in the resume, the score should be 80.
+2.  Identify which skills from the job description are present in the resume (matchedSkills).
+3.  Identify which skills from the job description are NOT in the resume (missingSkills).
+4.  Provide a concise, one-paragraph piece of advice to the user on how to improve their resume based on the missing skills. If there are no missing skills, the suggestion should be a general tip for resume improvement.
 
 Job Description Skills:
 {{#each jobDescriptionSkills}}
@@ -50,8 +53,7 @@ Resume Skills:
 - {{this}}
 {{/each}}
 
-Please provide the results in the specified JSON format, including the similarity score, matched skills, missing skills, and a helpful suggestion.
-If there are no missing skills, the suggestion should be a general tip for resume improvement.
+Please provide the results in the specified JSON format. Ensure all fields (similarityScore, matchedSkills, missingSkills, suggestion) are populated correctly based on your analysis.
 `,
 });
 
@@ -67,8 +69,8 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
         analyzeResume({ resumeText: input.resume }),
     ]);
 
-    if (!jobAnalysis || !resumeAnalysis) {
-        throw new Error('Failed to analyze job description or resume.');
+    if (!jobAnalysis || !jobAnalysis.skills || !resumeAnalysis || !resumeAnalysis.skills) {
+        throw new Error('Failed to analyze job description or resume. One or more analysis steps returned no data.');
     }
 
     const { output: result } = await comparisonAndSuggestionPrompt({
@@ -76,8 +78,8 @@ const compareResumeToJobDescriptionFlow = ai.defineFlow(
         resumeSkills: resumeAnalysis.skills,
     });
     
-    if (!result) {
-        throw new Error('Could not get comparison result and suggestion.');
+    if (!result || result.similarityScore === undefined) {
+        throw new Error('The AI model failed to return a valid comparison. Please try again.');
     }
     
     return result;
