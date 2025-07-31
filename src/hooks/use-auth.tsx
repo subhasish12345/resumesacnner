@@ -44,10 +44,13 @@ const privateRoutes = ['/dashboard', '/matcher'];
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    // This effect runs only on the client, after the component mounts.
+    setIsClient(true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -57,9 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || !isClient) return;
 
-    const isPublicRoute = publicRoutes.some((route) => pathname === route);
     const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
 
     if (!user && isPrivateRoute) {
@@ -67,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else if (user && (pathname === '/auth' || pathname === '/')) {
       router.push('/dashboard');
     }
-  }, [user, loading, router, pathname]);
+  }, [user, loading, router, pathname, isClient]);
   
   const signOut = async () => {
     try {
@@ -83,7 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
       router.push('/dashboard');
       return result.user;
     } catch (error) {
@@ -120,13 +121,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
 
-  if (loading || (isPrivateRoute && !user)) {
+  // While loading, or if not on the client yet, show a loading spinner to prevent hydration mismatch
+  if (loading || !isClient) {
      return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
+  
+  // If it's a private route and the user is not authenticated (and we're on the client),
+  // show a loader while the redirect is in progress.
+  if(isPrivateRoute && !user) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
