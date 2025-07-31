@@ -8,12 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { performMatch } from '@/app/actions';
-import type { CompareResumeToJobDescriptionOutput } from '@/ai/flows/compare-resume-to-job-description';
-import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import type { Dispatch, SetStateAction } from 'react';
-import { useAuth } from '@/hooks/use-auth';
 import { SampleData } from './sample-data';
 
 const formSchema = z.object({
@@ -22,11 +17,11 @@ const formSchema = z.object({
 });
 
 type ResumeMatcherFormProps = {
-  setResults: (results: CompareResumeToJobDescriptionOutput) => void;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  onAnalysis: (jobDescription: string, resume: string) => Promise<void>;
+  isSubmitting: boolean;
 };
 
-export function ResumeMatcherForm({ setResults, setIsLoading }: ResumeMatcherFormProps) {
+export function ResumeMatcherForm({ onAnalysis, isSubmitting }: ResumeMatcherFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
@@ -35,32 +30,9 @@ export function ResumeMatcherForm({ setResults, setIsLoading }: ResumeMatcherFor
       resume: '',
     },
   });
-  const { toast } = useToast();
-  const { user } = useAuth();
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
-        toast({
-            variant: 'destructive',
-            title: 'Not Authenticated',
-            description: 'You must be signed in to perform a match.',
-        });
-        return;
-    }
-    setIsLoading(true);
-    setResults(null!);
-    try {
-      const result = await performMatch(values.jobDescription, values.resume, user.uid);
-      setResults(result);
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Analysis Failed',
-        description: error instanceof Error ? error.message : 'An unknown error occurred.',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    onAnalysis(values.jobDescription, values.resume);
   }
 
   return (
@@ -110,8 +82,8 @@ export function ResumeMatcherForm({ setResults, setIsLoading }: ResumeMatcherFor
               />
             </div>
             <div className="flex justify-center pt-4">
-              <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
+              <Button type="submit" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Analyzing...
