@@ -39,34 +39,22 @@ const getBadgeVariant = (score: number): 'default' | 'secondary' | 'destructive'
 
 export function ScoreHistory({ scores }: ScoreHistoryProps) {
   if (scores.length === 0) {
-    return (
-        <Card className="shadow-lg">
-            <CardHeader>
-                <CardTitle>Score History</CardTitle>
-                <CardDescription>
-                Your past resume analysis scores will appear here.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground text-center">No scores recorded yet. Run an analysis to get started!</p>
-            </CardContent>
-        </Card>
-    );
+    return null;
   }
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion type="single" collapsible className="w-full" defaultValue='item-1'>
       <AccordionItem value="item-1">
-        <AccordionTrigger>
-          <CardHeader className="p-0 text-left">
-            <CardTitle>View Score History</CardTitle>
-            <CardDescription>
-              Check your previously recorded scores.
-            </CardDescription>
-          </CardHeader>
-        </AccordionTrigger>
-        <AccordionContent>
-          <Card className="shadow-lg">
-            <CardContent className="pt-6">
+        <Card className="shadow-lg mt-8">
+            <AccordionTrigger className='p-6'>
+            <CardHeader className="p-0 text-left">
+                <CardTitle>View Score History</CardTitle>
+                <CardDescription>
+                Check your previously recorded scores.
+                </CardDescription>
+            </CardHeader>
+            </AccordionTrigger>
+            <AccordionContent>
+            <CardContent className="pt-0">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -90,11 +78,11 @@ export function ScoreHistory({ scores }: ScoreHistoryProps) {
 
                     return (
                       <TableRow key={score.id}>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium truncate max-w-[150px] sm:max-w-xs">
                           {score.jobTitle}
                         </TableCell>
                         <TableCell className="text-center">
-                           <Badge variant={getBadgeVariant(score.score)} className="text-lg font-bold">
+                           <Badge variant={getBadgeVariant(score.score)} className="text-base font-bold tabular-nums">
                             {score.score}%
                           </Badge>
                         </TableCell>
@@ -116,8 +104,8 @@ export function ScoreHistory({ scores }: ScoreHistoryProps) {
                 </TableBody>
               </Table>
             </CardContent>
-          </Card>
-        </AccordionContent>
+            </AccordionContent>
+        </Card>
       </AccordionItem>
     </Accordion>
   );

@@ -22,11 +22,11 @@ const formSchema = z.object({
 });
 
 type ResumeMatcherFormProps = {
-  onResults: (results: CompareResumeToJobDescriptionOutput | null) => void;
+  setResults: (results: CompareResumeToJobDescriptionOutput) => void;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
-export function ResumeMatcherForm({ onResults, setIsLoading }: ResumeMatcherFormProps) {
+export function ResumeMatcherForm({ setResults, setIsLoading }: ResumeMatcherFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
@@ -48,11 +48,10 @@ export function ResumeMatcherForm({ onResults, setIsLoading }: ResumeMatcherForm
         return;
     }
     setIsLoading(true);
-    onResults(null);
+    setResults(null!);
     try {
       const result = await performMatch(values.jobDescription, values.resume, user.uid);
-      onResults(result);
-      form.reset();
+      setResults(result);
     } catch (error) {
       toast({
         variant: 'destructive',

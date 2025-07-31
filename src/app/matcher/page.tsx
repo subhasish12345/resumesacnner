@@ -70,7 +70,7 @@ export default function MatcherPage() {
         </header>
 
         <div className="max-w-7xl mx-auto space-y-12">
-          <ResumeMatcherForm onResults={handleNewResult} setIsLoading={setIsLoading} />
+          <ResumeMatcherForm setResults={handleNewResult} setIsLoading={setIsLoading} />
           
           {isLoading && <AnalysisResultsSkeleton />}
 
